@@ -1,0 +1,11 @@
+*.pyc
+*.swo
+*.swp
+*.swn
+db.sqlite3
+
+logs/
+static/
+
+.DS_Store
+.tox

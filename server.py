@@ -9,7 +9,14 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         print('connected by', addr)
 
         data = conn.recv(1024)
-        print('received', data)
+        content = data.decode('utf-8')
+        lines = content.split('\r\n')
+        method, path, protocol = lines[0].split()
+        print('method:', method)
+        print('path:', path)
+        print('protocol:', protocol)
+        headers = lines[1:-1]
+        print('headers:\n\t' + '\n\t'.join(headers))
 
         response = b'''\
 HTTP/1.1 200 OK

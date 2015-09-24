@@ -1,5 +1,18 @@
 import socket
 import time
+import os
+
+def handle_request(client_connection):
+    data = conn.recv(1024)
+    content = data.decode('utf-8')
+
+    time.sleep(15)
+    response = '''HTTP/1.1 200 OK\r\n\r\nHello World!'''
+    response = response.encode('utf-8')
+
+    conn.sendall(response)
+    conn.close()
+
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
     sock.bind(('0.0.0.0', 8000))
@@ -9,19 +22,13 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         conn, addr = sock.accept()
         print('connected by', addr)
 
-        data = conn.recv(1024)
-        content = data.decode('utf-8')
-        lines = content.split('\r\n')
-        method, path, protocol = lines[0].split()
-        print('method:', method)
-        print('path:', path)
-        print('protocol:', protocol)
-        headers = lines[1:-1]
-        print('headers:\n\t' + '\n\t'.join(headers))
+        pid = os.fork()
+        if pid == 0:  # child
+            sock.close()  # close child copy
+            handle_request(conn)
+            conn.close()
+            os._exit(0)  # child exits
+        else:  # parent
+            conn.close()  # close parent copy
 
-        time.sleep(15)
-        response = '''HTTP/1.1 200 OK\r\n\r\nHello World!'''
-        response = response.encode('utf-8')
 
-        conn.sendall(response)
-        conn.close()
